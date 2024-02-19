@@ -13,7 +13,12 @@ const cells = document.querySelectorAll(".cell");
 function makeMove(cellIndex) {
     if (gameStatus[cellIndex] === "" && !checkWinner()) {
         gameStatus[cellIndex] = currentPlayer;
-        cells[cellIndex].textContent = currentPlayer;
+        const cell = cells[cellIndex];
+        if (currentPlayer === 'X') {
+            cell.innerHTML = '<img src="cross.svg" alt="Cross">';
+        } else {
+            cell.innerHTML = '<img src="circle.svg" alt="Circle">';
+        }
         if (checkWinner()) {
             messageElement.textContent = `Player ${currentPlayer} wins!`;
         } else if (checkDraw()) {
@@ -24,6 +29,7 @@ function makeMove(cellIndex) {
         }
     }
 }
+
 
 function checkWinner() {
     return winningCombinations.some(combination => {
