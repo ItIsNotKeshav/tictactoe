@@ -8,8 +8,8 @@
   </head>
   <body>
     <div class="container">
-      <h1>Tic Tac Toe</h1>
-      <div id="message">Player 1's Turn</div>
+      <h1 class="name">Tic Tac Toe</h1>
+      <div id="message"></div>
       <div id="board">
         <div class="cell" onclick="makeMove(0)"></div>
         <div class="cell" onclick="makeMove(1)"></div>
@@ -23,6 +23,67 @@
       </div>
       <button onclick="resetGame()">Reset Game</button>
     </div>
-    <script src="script.js"></script>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io("http://localhost:3000");
+
+      let symbol; // Holds the player's assigned symbol (X or O)
+      let turn = false; // Tracks whether it's the player's turn
+      const cells = document.querySelectorAll(".cell");
+      let gameStatus = Array(9).fill(null); 
+      // Function to update the message displayed on the screen
+      function updateMessage(message) {
+        const messageElement = document.getElementById("message");
+        messageElement.textContent = message;
+      }
+
+      // Event listener for server messages
+      socket.on("message", (message) => {
+        updateMessage(message);
+      });
+
+      // Event listener for turn updates
+      socket.on("turn", (data) => {
+        turn = data === "Your turn";
+        updateMessage(data);
+      });
+
+      // Event listener for symbol assignment
+      socket.on("assignSymbol", (data) => {
+        symbol = data.symbol;
+        turn = data.message === "Your turn";
+        updateMessage(data.message);
+      });
+
+      // Function to make a move when a cell is clicked
+      function handleCellClick(event) {
+        const cellIndex = Array.from(cells).indexOf(event.target);
+        if (turn && symbol) {
+          makeMove(cellIndex);
+        } else {
+          console.log("It's not your turn");
+        }
+      }
+
+      // Function to send a move to the server
+      function makeMove(index) {
+        if (turn == true) {
+          socket.emit("makeMove", [symbol, index]);
+        }
+      }
+
+      // Function to update the UI of a cell
+      
+      socket.on("gameStatus", (data) => {
+        gameStatus = data;
+        for (let i = 0; i < gameStatus.length; i++) {
+          if (data[i] == "X") {
+            cells[i].innerHTML = '<img src="cross.svg" alt="Cross">';
+          } else if (data[i] == "O") {
+            cells[i].innerHTML = '<img src="circle.svg" alt="Circle">';
+          }
+        }
+      });
+    </script>
   </body>
 </html>
