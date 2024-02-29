@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -23,9 +24,9 @@
       </div>
       <button onclick="resetGame()">Reset Game</button>
     </div>
-    <script src="https://tictactoe-66v1.onrender.com/socket.io/socket.io.js"></script>
+        
     <script>
-      const socket = io("tictactoe-66v1.onrender.com", {transports: ['websocket']});
+      const socket = io("https://tictactoeserver-s6ek.onrender.com", {transports: ['websocket']});
 
       let symbol; // Holds the player's assigned symbol (X or O)
       let turn = false; // Tracks whether it's the player's turn
