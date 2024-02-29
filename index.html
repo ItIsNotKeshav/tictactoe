@@ -25,7 +25,7 @@
     </div>
     <script src="https://tictactoe-66v1.onrender.com/socket.io/socket.io.js"></script>
     <script>
-      const socket = io("https://tictactoe-66v1.onrender.com");
+      const socket = io("tictactoe-66v1.onrender.com", {transports: ['websocket']});
 
       let symbol; // Holds the player's assigned symbol (X or O)
       let turn = false; // Tracks whether it's the player's turn
