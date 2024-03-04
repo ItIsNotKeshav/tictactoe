@@ -1,17 +1,33 @@
-'use strict';
-const express = require('express');
-const socketIO = require('socket.io');
+// 'use strict';
+// const express = require('express');
+// const socketIO = require('socket.io');
+// const PORT = process.env.PORT || 3000;
+// const INDEX = '/index.html';
+// const server = express()
+//   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+//   .listen(PORT, () => console.log(`Listening on ${PORT}`));
+// const io = require("socket.io")(server,{
+//   cors: {
+//     origins: "*:*",
+//     methods: ["GET", "POST"]
+//   }
+// });
+
+"use strict";
+const express = require("express");
+const socketIO = require("socket.io");
 const PORT = process.env.PORT || 3000;
-const INDEX = '/index.html';
+const INDEX = "/index.html";
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
-const io = require("socket.io")(server,{
+const io = require("socket.io")(server, {
   cors: {
-    origins: "*:*",
-    methods: ["GET", "POST"]
-  }
+    origins: "http://localhost:5500",
+    methods: ["GET", "POST"],
+  },
 });
+
 const winningCombinations = [
   [0, 1, 2],
   [3, 4, 5],
@@ -30,9 +46,6 @@ function checkWinner() {
   });
 }
 
-
-
-
 // Array to store connected players (sockets)
 let players = [];
 let gameStatus = Array(9).fill(null);
@@ -41,7 +54,7 @@ io.on("connection", (socket) => {
   console.log("A player connected");
 
   players.push(socket);
-  
+
   if (players.length === 1) {
     socket.emit("message", "Waiting for opponent to join");
   }
@@ -53,16 +66,26 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("A player disconnected");
-    socket.emit("message", "The other player disconnected");
+    players = players.filter((player) => player !== socket); // Remove the disconnected player from the players array
+      players[0].emit("message", "The other player disconnected"); 
+      gameStatus = Array(9).fill(null);
+      turn = 0;
+      io.emit("gameStatus", gameStatus);
+
+      if (players.length === 1) {
+        players[0].emit("message", "The other player disconnected");
+      }
+    
   });
 
   socket.on("makeMove", (data) => {
     const index = data[1];
     const symbol = data[0];
     turn = 1 - turn;
-    gameStatus[index] = symbol;
-    io.emit("gameStatus", gameStatus);
-    // Update game status only for the current move
+    if (gameStatus[index] === null) {
+      gameStatus[index] = symbol;
+      io.emit("gameStatus", gameStatus);
+    }
 
     console.log(symbol, "made a move at index", index);
     console.log("Current game status:", gameStatus);
@@ -73,7 +96,6 @@ io.on("connection", (socket) => {
     players[1 - turn].emit("turn", "Opponent's turn");
 
     // Send updated game state and history to all clients
-    
   });
 });
 

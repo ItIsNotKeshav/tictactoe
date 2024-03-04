@@ -24,14 +24,16 @@
       </div>
       <button onclick="resetGame()">Reset Game</button>
     </div>
-        
+    <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>-->
     <script>
-      const socket = io("https://tictactoeserver-s6ek.onrender.com", {transports: ['websocket']});
-
+      const socket = io("https://tictactoeserver-s6ek.onrender.com", {
+        transports: ["websocket"],
+      });
+      // const socket = io("http://localhost:3000");
       let symbol; // Holds the player's assigned symbol (X or O)
       let turn = false; // Tracks whether it's the player's turn
       const cells = document.querySelectorAll(".cell");
-      let gameStatus = Array(9).fill(null); 
+      let gameStatus = Array(9).fill(null);
       // Function to update the message displayed on the screen
       function updateMessage(message) {
         const messageElement = document.getElementById("message");
@@ -73,8 +75,6 @@
         }
       }
 
-      // Function to update the UI of a cell
-      
       socket.on("gameStatus", (data) => {
         gameStatus = data;
         for (let i = 0; i < gameStatus.length; i++) {
@@ -83,6 +83,13 @@
           } else if (data[i] == "O") {
             cells[i].innerHTML = '<img src="circle.svg" alt="Circle">';
           }
+        }
+      });
+
+      socket.on("resetGame", () => {
+        gameStatus = Array(9).fill(null);
+        for (let i = 0; i < cells.length; i++) {
+          cells[i].innerHTML = "";
         }
       });
     </script>
