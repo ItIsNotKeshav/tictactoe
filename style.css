@@ -2,10 +2,16 @@
 
 body {
   background-color: #020808;
+  overflow: hidden;
 }
 
 .container {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* This makes the container take up the full viewport height */
+  flex-direction: column;
 }
 
 h1 {
