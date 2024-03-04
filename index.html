@@ -22,14 +22,12 @@
         <div class="cell" onclick="makeMove(7)"></div>
         <div class="cell" onclick="makeMove(8)"></div>
       </div>
-      <button onclick="resetGame()">Reset Game</button>
+      <button onclick="resetGame()">Continue</button>
     </div>
     <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>-->
     <script>
-      const socket = io("https://tictactoeserver-s6ek.onrender.com", {
-        transports: ["websocket"],
-      });
-      // const socket = io("http://localhost:3000");
+      // const socket = io("https://tictactoeserver-s6ek.onrender.com", {transports: ["websocket"],});
+      const socket = io("http://localhost:3000");
       let symbol; // Holds the player's assigned symbol (X or O)
       let turn = false; // Tracks whether it's the player's turn
       const cells = document.querySelectorAll(".cell");
@@ -75,6 +73,10 @@
         }
       }
 
+      function resetGame() {
+        socket.emit("resetGame");
+      }
+
       socket.on("gameStatus", (data) => {
         gameStatus = data;
         for (let i = 0; i < gameStatus.length; i++) {
@@ -82,6 +84,8 @@
             cells[i].innerHTML = '<img src="cross.svg" alt="Cross">';
           } else if (data[i] == "O") {
             cells[i].innerHTML = '<img src="circle.svg" alt="Circle">';
+          } else if (data[i] == null) {
+            cells[i].innerHTML = "";
           }
         }
       });
