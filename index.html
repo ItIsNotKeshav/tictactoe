@@ -26,8 +26,10 @@
     </div>
     <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>-->
     <script>
-      // const socket = io("https://tictactoeserver-s6ek.onrender.com", {transports: ["websocket"],});
-      const socket = io("http://localhost:3000");
+      const socket = io("https://tictactoeserver-s6ek.onrender.com", {
+        transports: ["websocket"],
+      });
+      // const socket = io("http://localhost:3000");
       let symbol; // Holds the player's assigned symbol (X or O)
       let turn = false; // Tracks whether it's the player's turn
       const cells = document.querySelectorAll(".cell");
