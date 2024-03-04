@@ -67,15 +67,14 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A player disconnected");
     players = players.filter((player) => player !== socket); // Remove the disconnected player from the players array
-      players[0].emit("message", "The other player disconnected"); 
-      gameStatus = Array(9).fill(null);
-      turn = 0;
-      io.emit("gameStatus", gameStatus);
+    players[0].emit("message", "The other player disconnected");
+    gameStatus = Array(9).fill(null);
+    turn = 0;
+    io.emit("gameStatus", gameStatus);
 
-      if (players.length === 1) {
-        players[0].emit("message", "The other player disconnected");
-      }
-    
+    if (players.length === 1) {
+      players[0].emit("message", "The other player disconnected");
+    }
   });
 
   socket.on("makeMove", (data) => {
@@ -97,6 +96,14 @@ io.on("connection", (socket) => {
 
     // Send updated game state and history to all clients
   });
+
+  socket.on("resetGame", () => {
+    gameStatus = Array(9).fill(null);
+    turn = 0;
+    io.emit("gameStatus", gameStatus);
+    console.log(gameStatus);
+    assignSymbols(players[0], players[1]);
+  });
 });
 
 function assignSymbols(player1, player2) {
@@ -112,6 +119,7 @@ function assignSymbols(player1, player2) {
       symbol: secondPlayerSymbol,
       message: "Opponent's turn",
     });
+    turn = players.indexOf(player1); // Set turn to the index of player1
   } else {
     player2.emit("assignSymbol", {
       symbol: secondPlayerSymbol,
@@ -121,5 +129,6 @@ function assignSymbols(player1, player2) {
       symbol: firstPlayerSymbol,
       message: "Opponent's turn",
     });
+    turn = players.indexOf(player2); // Set turn to the index of player2
   }
 }
