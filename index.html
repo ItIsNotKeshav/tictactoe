@@ -22,7 +22,7 @@
         <div class="cell" onclick="makeMove(7)"></div>
         <div class="cell" onclick="makeMove(8)"></div>
       </div>
-      <button onclick="resetGame()">Continue</button>
+      <button id="contButton" onclick="resetGame()">Continue</button>
     </div>
     <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>-->
     <script>
@@ -40,6 +40,9 @@
 
       // Event listener for server messages
       socket.on("message", (message) => {
+        if (message === "It's a DRAW!") {
+          document.getElementById('contButton').style.display = 'block'; 
+        } 
         updateMessage(message);
       });
 
@@ -75,6 +78,7 @@
 
       function resetGame() {
         socket.emit("resetGame");
+        document.getElementById('continue-button').style.display = 'none';
       }
 
       socket.on("gameStatus", (data) => {
@@ -92,6 +96,7 @@
 
       socket.on("winner", (data) => {
         updateMessage("The winner is " + data + "!");
+        document.getElementById('contButton').style.display = 'block'; 
       });
       
 

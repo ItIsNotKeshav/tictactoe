@@ -39,11 +39,27 @@ const winningCombinations = [
   [2, 4, 6],
 ];
 function checkWinner() {
-  return winningCombinations.some((combination) => {
-    return combination.every((index) => {
-      return gameStatus[index] === currentPlayer;
-    });
-  });
+  for (let i = 0; i < winningCombinations.length; i++) {
+    const [a, b, c] = winningCombinations[i];
+    if (
+      gameStatus[a] &&
+      gameStatus[a] === gameStatus[b] &&
+      gameStatus[a] === gameStatus[c]
+    ) {
+      return gameStatus[a];
+    }
+  }
+  return null;
+}
+
+function checkDraw(){
+  for (let i = 0; i < gameStatus.length; i++){
+    if (gameStatus[i] === null){
+      return false;
+    }
+  }
+  return true;
+
 }
 
 // Array to store connected players (sockets)
@@ -56,7 +72,7 @@ io.on("connection", (socket) => {
   players.push(socket);
 
   if (players.length === 1) {
-    socket.emit("message", "Waiting for opponent to join");
+    players[0].emit("message", "Waiting for opponent to join");
   }
 
   if (players.length === 2) {
@@ -67,7 +83,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A player disconnected");
     players = players.filter((player) => player !== socket); // Remove the disconnected player from the players array
-    players[0].emit("message", "The other player disconnected");
     gameStatus = Array(9).fill(null);
     turn = 0;
     io.emit("gameStatus", gameStatus);
@@ -89,20 +104,35 @@ io.on("connection", (socket) => {
     console.log(symbol, "made a move at index", index);
     console.log("Current game status:", gameStatus);
 
-    // Send the move data to all other clients (except the sender)
     io.to(socket.id).emit("makeMove", data);
-    players[turn].emit("turn", "Your turn");
-    players[1 - turn].emit("turn", "Opponent's turn");
+
+    const winner = checkWinner();
+    console.log("Winner is", winner);
+    if (checkWinner()) {
+      io.emit("winner", checkWinner());
+      io.emit("gameStatus", gameStatus);
+      return;
+    } else if (checkDraw()){
+      io.emit("message", "It's a DRAW!");
+      io.emit("gameStatus", gameStatus);
+      return;
+    }
+    else {
+      players[turn].emit("turn", "Your turn");
+      players[1 - turn].emit("turn", "Opponent's turn");
+    }
 
     // Send updated game state and history to all clients
   });
 
   socket.on("resetGame", () => {
+    if (checkWinner() || checkDraw()){
     gameStatus = Array(9).fill(null);
     turn = 0;
     io.emit("gameStatus", gameStatus);
     console.log(gameStatus);
     assignSymbols(players[0], players[1]);
+    }
   });
 });
 
